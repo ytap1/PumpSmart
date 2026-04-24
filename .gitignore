@@ -36,3 +36,9 @@ build/
 .coverage
 coverage/
 htmlcov/
+
+# PumpSmart runtime data
+data/pumpsmart.db
+
+# Streamlit secrets (API keys)
+.streamlit/secrets.toml

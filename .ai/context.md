@@ -1,35 +1,32 @@
-# Context: {{PROJECT_NAME}}
+# Context: PumpSmart
 
 > Single source of truth Claude reads at the start of every session.
-> Keep under ~150 lines. Link out instead of inlining.
 
-Last updated: {{CURRENT_DATE}}
+Last updated: 2026-04-24
 
 ## What This Is
 
-{{PROJECT_NAME}} is {{PROJECT_DESCRIPTION}}.
+PumpSmart is an AI-powered fuel companion web app for Metro Manila drivers (PH market, PHP currency).
 
-Answer in one sentence each:
-
-- **Problem:** <what specific pain this solves>
-- **User:** <who uses it>
-- **Success:** <observable outcome that means it works>
+- **Problem:** Filipino drivers overspend on fuel due to poor trip timing and uninformed refueling choices.
+- **User:** Metro Manila car owners who commute regularly.
+- **Success:** User sees ₱ savings from departure time shift or station selection on first use.
 
 ## Current State
 
-- **Phase:** pre-alpha / alpha / beta / production (pick one)
+- **Phase:** MVP / hackathon demo
 - **Version:** 0.1.0
-- **Deployed?** No / URL
-- **Users?** None / count
-- **Known broken:** <list load-bearing things that fail>
+- **Deployed?** No — target: Streamlit Community Cloud
+- **Users?** None
+- **Known broken:** Google Maps mocked (straight-line distance); Gemma mocked if no API key
 
 ## Stack
 
-{{TECH_STACK}}
-
-Fill in once chosen. Do not assume a stack — this template is intentionally
-neutral. List only what is actually picked: language, framework, storage,
-deploy target.
+- **App:** Streamlit (Python)
+- **AI:** `gemma-3-27b-it` via `google-genai` SDK
+- **Maps:** Folium + streamlit-folium (MOCK_ROUTE until Directions API key added)
+- **Storage:** SQLite via `sqlite3` (dev); Neon Postgres for prod
+- **Deploy:** Streamlit Community Cloud
 
 ## Working Model
 

@@ -1,44 +1,46 @@
-# {{PROJECT_NAME}}
+# PumpSmart
 
-> {{PROJECT_DESCRIPTION}}
+> AI-powered fuel companion for Metro Manila drivers. Reduce fuel spend through predictive trip cost analysis and smart refueling decisions.
 
 ## Status
 
-- **Phase:** pre-alpha
-- **Version:** 0.1.0 (see [CHANGELOG.md](./CHANGELOG.md))
-- **Last updated:** {{CURRENT_DATE}}
-- **Deployed?** No.
+- **Phase:** MVP / hackathon demo
+- **Version:** 0.1.0
+- **Deployed?** No — deploy to Streamlit Community Cloud
+- **AI:** Gemma-3-27b-it via Google AI Studio (mock fallback if no key)
 
-## How Work Happens Here
+## Features
 
-- Edits via Claude Code (GitHub integration) or the GitHub web editor on Safari.
-- No local dev, no terminal, no package managers — never assume them.
-- Push directly to `main` by default. Branch only for destructive or high-risk changes.
-- Deploy is auto-triggered on push to `main` (GitHub Pages or Netlify, per project).
-- Verification happens on the deployed preview, not on a localhost.
+| Page | What it does |
+|---|---|
+| Dashboard | Budget gauge, recent trip history, fuel price snapshot |
+| Trip Predictor | Compare fuel cost across 3 departure windows (now / +30 / +60 min) |
+| Refuel Advisor | Rank nearby stations by price + detour cost, folium map |
+| AI Advisor | Gemma-powered personalized recommendations |
 
-See [docs/workflow.md](./docs/workflow.md) for the full working model.
+## Stack
 
-## What Works
+- **Frontend/Backend:** Streamlit
+- **AI:** `gemma-3-27b-it` via `google-genai`
+- **Maps:** Folium + streamlit-folium (MOCK routes — real Directions API pending)
+- **Data:** SQLite (dev) · Neon Postgres (prod via `DATABASE_URL`)
+- **Deploy:** Streamlit Community Cloud
 
-- AI-first docs in [`.ai/`](./.ai/).
-- `CHANGELOG.md`, `docs/`, `.gitignore` scaffolding.
+## Deploy
 
-Replace this with real shipped features as they land.
+1. Push to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io) → New app → select `app.py`
+3. Add secret: `GOOGLE_API_KEY = "your-key"` in the Streamlit secrets UI
+4. Deploy — live in ~2 minutes
 
-## What's Next
+## Local Run (Claude Code sandbox only)
 
-- [ ] Pick the stack and fill in `.ai/context.md` (`{{TECH_STACK}}`).
-- [ ] First end-to-end feature slice, deployed.
+```
+streamlit run app.py
+```
 
-## Documentation
+## Mock Data
 
-- [CLAUDE.md](./CLAUDE.md) — read first; how Claude should work in this repo
-- [.ai/context.md](./.ai/context.md) — what this is, current state, constraints
-- [.ai/conventions.md](./.ai/conventions.md) — coding rules
-- [.ai/decisions.md](./.ai/decisions.md) — ADRs
-- [.ai/prompts.md](./.ai/prompts.md) — prompt templates
-- [.ai/metrics.md](./.ai/metrics.md) — AI-assist log
-- [docs/workflow.md](./docs/workflow.md) — working model + deploy
-- [docs/architecture.md](./docs/architecture.md) — structure + data flow
-- [CHANGELOG.md](./CHANGELOG.md) — release history
+All Google Maps calls are mocked with straight-line distance × 1.4 road factor.
+Fuel stations are 10 real Manila-area locations with realistic PHP prices.
+Set `GOOGLE_API_KEY` to activate live Gemma responses.
