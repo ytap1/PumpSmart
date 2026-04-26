@@ -28,3 +28,12 @@ Read this first. Then `.ai/context.md`, then `.ai/conventions.md`.
 4. [docs/workflow.md](./docs/workflow.md) — full working model
 5. [docs/architecture.md](./docs/architecture.md) — structure + data flow
 6. [.ai/prompts.md](./.ai/prompts.md) — session templates
+
+## Streamlit Conventions
+
+**Never render results inside an `if st.button(...):` block when that block contains `st_folium`, `st.chat_input`, or any other widget that triggers a rerun.** Those widgets cause a rerun on interaction, which resets `st.button()` to `False`, making the entire block — including results — vanish.
+
+**The correct pattern:**
+1. Button click validates inputs, computes results, and stores them in `st.session_state` (e.g. `st.session_state["my_result"] = {...}`).
+2. The results-rendering block lives **outside** the button conditional and reads from `st.session_state.get("my_result")`.
+3. For widgets with non-stable defaults (e.g. `datetime.now().time()`), initialize `st.session_state["key"]` once on first load, pass it as `value=`, and write the widget's return value back to session state on every run.

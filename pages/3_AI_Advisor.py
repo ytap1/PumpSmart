@@ -7,7 +7,7 @@ init_db()
 
 st.set_page_config(page_title="AI Advisor — PumpSmart", page_icon="🤖", layout="wide")
 st.title("🤖 AI Fuel Savings Advisor")
-st.caption("Powered by Gemma-3-27b-it via Google AI Studio.")
+st.caption("Powered by Gemma 4 26B A4B via Google AI Studio.")
 
 with st.sidebar:
     st.header("Your Profile")
@@ -50,8 +50,13 @@ st.divider()
 if st.button("Get AI Recommendations", type="primary", use_container_width=True):
     with st.spinner("Gemma is analyzing your driving profile..."):
         recommendations, is_mock = get_recommendations(context)
+    st.session_state["ai_result"] = {"recommendations": recommendations, "is_mock": is_mock}
 
-    if is_mock:
+ai_result = st.session_state.get("ai_result")
+if ai_result:
+    recommendations = ai_result["recommendations"]
+
+    if ai_result["is_mock"]:
         st.warning(MOCK_WARNING)
 
     st.subheader("Your 3 Fuel-Saving Recommendations")

@@ -75,7 +75,7 @@ def get_recommendations(context: dict) -> tuple[list[dict], bool]:
             "Provide 3 fuel-saving recommendations as a JSON array."
         )
         response = client.models.generate_content(
-            model="gemma-3-27b-it",
+            model="gemma-4-26b-a4b-it",
             contents=user_message,
             config={"system_instruction": SYSTEM_PROMPT},
         )
@@ -88,5 +88,6 @@ def get_recommendations(context: dict) -> tuple[list[dict], bool]:
         recommendations = json.loads(raw.strip())
         return recommendations, False
     except Exception as err:
-        st.warning(f"MOCK_AI_FALLBACK — Gemma call failed: {err}")
+        print(f"[AI fallback] {err}")
+        st.warning("⚠️ AI recommendations temporarily unavailable — showing default tips.")
         return _mock_recommendations(context), True

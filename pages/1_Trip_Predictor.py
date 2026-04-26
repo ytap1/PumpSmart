@@ -32,7 +32,10 @@ with col2:
     dest_options = [a for a in areas if a != origin]
     destination = st.selectbox("Destination", dest_options, index=2)
 
-departure_time = st.time_input("Planned departure time", value=datetime.now().time())
+if "departure_time" not in st.session_state:
+    st.session_state["departure_time"] = datetime.now().time()
+departure_time = st.time_input("Planned departure time", value=st.session_state["departure_time"])
+st.session_state["departure_time"] = departure_time
 departure_dt = datetime.combine(datetime.today(), departure_time)
 
 if st.button("Predict Trip Cost", type="primary", use_container_width=True):
@@ -40,45 +43,57 @@ if st.button("Predict Trip Cost", type="primary", use_container_width=True):
         st.error("Origin and destination must be different.")
     else:
         slots = predict_three_slots(origin, destination, departure_dt, km_per_liter, fuel_price)
-
-        st.subheader("Cost Comparison")
-        cols = st.columns(3)
-        cheapest_cost = min(s["cost_php"] for s in slots)
-        for i, slot in enumerate(slots):
-            with cols[i]:
-                saving = slots[0]["cost_php"] - slot["cost_php"]
-                saving_label = f"Save ₱{saving:.2f}" if saving > 0 else ("Baseline" if saving == 0 else f"+₱{abs(saving):.2f}")
-                st.metric(
-                    label=slot["label"],
-                    value=f"₱{slot['cost_php']:.2f}",
-                    delta=saving_label if i > 0 else None,
-                    delta_color="normal",
-                )
-                st.caption(
-                    f"Depart {slot['departure_time']} · "
-                    f"{slot['distance_km']} km · "
-                    f"~{slot['estimated_duration_min']} min · "
-                    f"Traffic ×{slot['traffic_factor']}"
-                )
-
         best = min(slots, key=lambda s: s["cost_php"])
-        if best["label"] != "Leave now":
-            st.success(f"Tip: {best['label']} saves you ₱{slots[0]['cost_php'] - best['cost_php']:.2f} vs leaving now.")
-        else:
-            st.info("Now is already the cheapest window for this trip.")
+        st.session_state["trip_prediction"] = {
+            "slots": slots,
+            "origin": origin,
+            "destination": destination,
+            "best": best,
+            "saved": False,
+        }
 
-        st.subheader("Route Map")
-        st.caption("⚠️ MOCK_ROUTE — dashed line is straight-line approximation, not real road path.")
-        m = route_map(origin, destination)
-        st_folium(m, width="100%", height=380)
+prediction = st.session_state.get("trip_prediction")
+if prediction:
+    slots = prediction["slots"]
+    best = prediction["best"]
 
-        # Persist best prediction
+    st.subheader("Cost Comparison")
+    cols = st.columns(3)
+    for i, slot in enumerate(slots):
+        with cols[i]:
+            saving = slots[0]["cost_php"] - slot["cost_php"]
+            saving_label = f"Save ₱{saving:.2f}" if saving > 0 else ("Baseline" if saving == 0 else f"+₱{abs(saving):.2f}")
+            st.metric(
+                label=slot["label"],
+                value=f"₱{slot['cost_php']:.2f}",
+                delta=saving_label if i > 0 else None,
+                delta_color="normal",
+            )
+            st.caption(
+                f"Depart {slot['departure_time']} · "
+                f"{slot['distance_km']} km · "
+                f"~{slot['estimated_duration_min']} min · "
+                f"Traffic ×{slot['traffic_factor']}"
+            )
+
+    if best["label"] != "Leave now":
+        st.success(f"Tip: {best['label']} saves you ₱{slots[0]['cost_php'] - best['cost_php']:.2f} vs leaving now.")
+    else:
+        st.info("Now is already the cheapest window for this trip.")
+
+    st.subheader("Route Map")
+    st.caption("⚠️ MOCK_ROUTE — dashed line is straight-line approximation, not real road path.")
+    m = route_map(prediction["origin"], prediction["destination"])
+    st_folium(m, width="100%", height=380)
+
+    if not prediction["saved"]:
         save_prediction(
             vehicle_id=st.session_state.get("vehicle_id", 0),
-            route_label=f"{origin} → {destination}",
+            route_label=f"{prediction['origin']} → {prediction['destination']}",
             departure_time=best["departure_time"],
             distance_km=best["distance_km"],
             predicted_cost_php=best["cost_php"],
             predicted_duration_min=best["estimated_duration_min"],
             traffic_factor=best["traffic_factor"],
         )
+        st.session_state["trip_prediction"]["saved"] = True
